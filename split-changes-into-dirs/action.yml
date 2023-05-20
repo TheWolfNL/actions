@@ -1,0 +1,43 @@
+---
+name: "Split changes into list of Directories"
+description: "Determine Directories with changes based on the inputs and returns the list of paths"
+inputs:
+  token:
+    description: >
+      GitHub token for GitHub API requests.
+    required: true
+    default: "${{ github.token }}"
+  baseFolder:
+    description: >
+      Base folder containing all the Directories
+    required: true
+    default: "."
+  configFile:
+    description: >
+      Path to the config file that contains config.
+    required: true
+    default: ".ci/splitter-config.yaml"
+  getAllDirectories:
+    description: >
+      Instead of finding the changed directories, return
+      all the dirs
+    required: false
+    default: "false"
+  requireHeadAheadOfBase:
+    description: >
+      Require the HEAD commit to be ahead of the base commit
+    required: false
+    default: "true"
+  overrideDirectories:
+    description: >
+      A JSON encoded array of Directories to return instead of finding
+      the changed Directories
+    required: false
+    default: "[]"
+outputs:
+  directories:
+    description: >
+      An array of all the directories that contain changes
+runs:
+  using: "node16"
+  main: "../lib/split-changes-into-dirs.js"
