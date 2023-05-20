@@ -18,7 +18,7 @@ jobs:
         id: get-app-token
         uses: getsentry/action-github-app-token@v2
         with:
-          app_id: ${{ env.WOLFPACK_APP_ID }}
+          app_id: ${{ secrets.WOLFPACK_APP_ID }}
           private_key: ${{ secrets.WOLFPACK_APP_PRIVATE_KEY }}
 
       - name: Checkout
