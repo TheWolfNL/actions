@@ -87,7 +87,9 @@ async function requestAllFiles(commit: string, githubToken: string) {
 async function getConfig(configPath: string) {
   // Ensure that the repo config file exists.
   if (!(await fs.pathExists(configPath))) {
-    throw new Error(`${configPath} Does not exist!`);
+    return {
+      excluded_directories: [],
+    };
   }
 
   const configRaw = await fs.readFile(configPath, "utf8");
