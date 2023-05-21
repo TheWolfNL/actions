@@ -15,8 +15,18 @@ inputs:
   configFile:
     description: >
       Path to the config file that contains config.
+    required: false
+    default: ".github/config/splitter-config.yaml"
+  depth:
+    description: >
+      Configure whether subdirectories need to be returned
     required: true
-    default: ".ci/splitter-config.yaml"
+    default: "0"
+  includeParent:
+    description: >
+      Include parent in front of each directory
+    required: true
+    default: "false"
   getAllDirectories:
     description: >
       Instead of finding the changed directories, return
