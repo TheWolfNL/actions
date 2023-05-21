@@ -7,9 +7,9 @@ inputs:
       GitHub token for GitHub API requests.
     required: true
     default: "${{ github.token }}"
-  baseFolder:
+  baseFolders:
     description: >
-      Base folder containing all the Directories
+      A JSON encoded array of base directories
     required: true
     default: "."
   configFile:
@@ -26,7 +26,7 @@ inputs:
     description: >
       Include parent in front of each directory
     required: true
-    default: "false"
+    default: "true"
   getAllDirectories:
     description: >
       Instead of finding the changed directories, return

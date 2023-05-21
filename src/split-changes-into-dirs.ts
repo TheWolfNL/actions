@@ -109,32 +109,34 @@ async function getConfig(configPath: string) {
   return config;
 }
 
-function filterChangedDirectories(files: string[], parentFolder: string, depth: number, includeParent: Boolean) {
-  const filteredFiles = files.filter((file) => {
-    const rel = path.relative(parentFolder, file);
-    return !rel.startsWith("../") && rel !== "..";
-  });
-
+function filterChangedDirectories(files: string[], parentFolders: string[], depth: number, includeParent: Boolean) {
   const changedDirectories: string[] = [];
-  for (const file of filteredFiles) {
-    const absoluteParentFolder = path.resolve(parentFolder);
-    const absoluteFileDirname = path.resolve(path.dirname(file));
-    const relativeFileDirname = absoluteFileDirname.slice(
-      absoluteParentFolder.length + 1
-    );
-    const pathParts: string[] = relativeFileDirname.split("/");
-    let directory = "";
-    for (let index = 0; index <= depth; index++) {
-      directory += `${pathParts[index]}/`;
+  parentFolders.forEach(parent => {
+    const filteredFiles = files.filter((file) => {
+      const rel = path.relative(parent, file);
+      return !rel.startsWith("../") && rel !== "..";
+    });
+
+    for (const file of filteredFiles) {
+      const absoluteParentFolder = path.resolve(parent);
+      const absoluteFileDirname = path.resolve(path.dirname(file));
+      const relativeFileDirname = absoluteFileDirname.slice(
+        absoluteParentFolder.length + 1
+      );
+      const pathParts: string[] = relativeFileDirname.split("/");
+      let directory = "";
+      for (let index = 0; index <= depth; index++) {
+        directory += `${pathParts[index]}/`;
+      }
+      // trim last /
+      directory = directory.slice(0, -1);
+      // prepend parent if needed
+      if (includeParent) {
+        directory = `${parent}/${directory}`;
+      }
+      changedDirectories.push(`${directory}`);
     }
-    // trim last /
-    directory = directory.slice(0, -1);
-    // prepend parent if needed
-    if (includeParent) {
-      directory = `${parentFolder}/${directory}`;
-    }
-    changedDirectories.push(`${directory}`);
-  }
+  });
 
   // Return only unique items
   var result = changedDirectories.filter(
@@ -146,7 +148,7 @@ function filterChangedDirectories(files: string[], parentFolder: string, depth: 
 async function run() {
   try {
     const githubToken = core.getInput("token", { required: true });
-    const baseFolder = core.getInput("baseFolder", { required: true });
+    const baseFolders = YAML.parse(core.getInput("baseFolders", { required: true }));
     const includeParent = core.getInput("includeParent", { required: true }) === "true";
     const depth = Number(core.getInput("depth", { required: true }));
     const requireHeadAheadOfBase = core.getInput("requireHeadAheadOfBase", {
@@ -190,7 +192,7 @@ async function run() {
         default:
           throw new Error(
             `This action only supports pull requests, pushes and workflow_dispatch,` +
-              `${github.context.eventName} events are not supported.`
+            `${github.context.eventName} events are not supported.`
           );
       }
 
@@ -209,7 +211,7 @@ async function run() {
           requireHeadAheadOfBase === "true"
         );
       }
-      responseDirectories = filterChangedDirectories(responseFiles, baseFolder, depth, includeParent);
+      responseDirectories = filterChangedDirectories(responseFiles, baseFolders, depth, includeParent);
     }
 
     // Determine changed directories
