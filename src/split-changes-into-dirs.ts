@@ -109,7 +109,7 @@ async function getConfig(configPath: string) {
   return config;
 }
 
-function filterChangedDirectories(files: string[], parentFolders: string[], depth: number, includeParent: Boolean) {
+export function _filterChangedDirectories(files: string[], parentFolders: string[], includeParent: Boolean = false, depth: number = 1) {
   const changedDirectories: string[] = [];
   parentFolders.forEach(parent => {
     const filteredFiles = files.filter((file) => {
@@ -124,12 +124,15 @@ function filterChangedDirectories(files: string[], parentFolders: string[], dept
         absoluteParentFolder.length + 1
       );
       const pathParts: string[] = relativeFileDirname.split("/");
+      if (pathParts.length < depth) continue;
       let directory = "";
-      for (let index = 0; index <= depth; index++) {
+      for (let index = 0; index <= depth - 1; index++) {
         directory += `${pathParts[index]}/`;
       }
       // trim last /
       directory = directory.slice(0, -1);
+      // prevent the parent's root from being added
+      if (directory == "") continue;
       // prepend parent if needed
       if (includeParent) {
         directory = `${parent}/${directory}`;
@@ -211,7 +214,7 @@ async function run() {
           requireHeadAheadOfBase === "true"
         );
       }
-      responseDirectories = filterChangedDirectories(responseFiles, baseFolders, depth, includeParent);
+      responseDirectories = _filterChangedDirectories(responseFiles, baseFolders, includeParent, depth);
     }
 
     // Determine changed directories
