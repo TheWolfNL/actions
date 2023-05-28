@@ -21,7 +21,7 @@ inputs:
     description: >
       Configure whether subdirectories need to be returned
     required: true
-    default: "0"
+    default: "1"
   includeParent:
     description: >
       Include parent in front of each directory
